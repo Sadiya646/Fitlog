@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import logo from "@/assets/logo.png";
@@ -8,8 +8,15 @@ import { usePlan } from "@/app/context/PlanContext";
 
 const Navbar = () => {
     const pathname = usePathname();
+    const { plan, savedWorkouts = [] } = usePlan();
 
-    const { plan } = usePlan();
+    // Hydration error dur korar jonno mounted state
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setMounted(true);
+    }, []);
 
     const workoutActive =
         pathname === "/" || pathname.startsWith("/workout");
@@ -30,7 +37,6 @@ const Navbar = () => {
                         alt="FitLog"
                         className="h-6 w-6 object-contain"
                     />
-
                     FITLOG
                 </Link>
 
@@ -72,11 +78,9 @@ const Navbar = () => {
                         className="flex items-center gap-1 rounded-full bg-[#ccff00] px-3 py-1.5 text-[10px] font-black uppercase text-black"
                     >
                         <span>✓</span>
-
                         <span>Plan</span>
-
                         <span>
-                            ({plan.length})
+                            ({mounted ? plan.length : 0})
                         </span>
                     </Link>
 
@@ -86,10 +90,8 @@ const Navbar = () => {
                         className="flex items-center gap-1 rounded-full border border-white/30 px-3 py-1.5 text-[10px] font-black uppercase text-white"
                     >
                         <span>♡</span>
-
                         <span>Saved</span>
-
-                        <span>(0)</span>
+                        <span>({mounted ? savedWorkouts.length : 0})</span>
                     </Link>
 
                 </div>

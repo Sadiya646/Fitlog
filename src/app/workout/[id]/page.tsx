@@ -1,8 +1,10 @@
 "use client";
 
-import React, { use, useEffect, useState } from "react";
-import Link from "next/link";
-import { usePlan } from "../../context/PlanContext";
+import React, { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { usePlan } from "@/app/context/PlanContext";
+import SavedButton from "@/app/components/SavesButton";
+import { toast } from "react-toastify";
 
 interface Workout {
     id: number;
@@ -20,300 +22,207 @@ interface Workout {
     instructions: string[];
 }
 
-const Page = ({
-    params,
-}: {
-    params: Promise<{ id: string }>;
-}) => {
-    const { id } = use(params);
+export default function WorkoutDetailPage() {
+    const params = useParams();
+    const id = params?.id;
 
     const [workout, setWorkout] = useState<Workout | null>(null);
     const [loading, setLoading] = useState(true);
-    const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-    const { plan, addToPlan } = usePlan();
+    const { plan ,addToPlan } = usePlan();
 
     useEffect(() => {
-        fetch(`https://api.abcz.workers.dev/api/fitlog/${id}`)
-            .then((res) => {
-                if (!res.ok) {
-                    throw new Error("Workout not found");
-                }
+        if (!id) return;
 
-                return res.json();
-            })
-            .then((data) => {
-                setWorkout(data);
+        fetch("https://api.abcz.workers.dev/api/fitlog")
+            .then((res) => res.json())
+            .then((data: Workout[]) => {
+                const found = data.find(
+                    (item) => item.id.toString() === id
+                );
+
+                setWorkout(found || null);
                 setLoading(false);
             })
-            .catch((error) => {
-                console.log(error);
+            .catch(() => {
                 setLoading(false);
+                toast.error("Failed to load workout details.");
             });
     }, [id]);
 
-    // Check whether workout is already in today's plan
-    const alreadyAdded = workout
-        ? plan.some((item) => item.id === workout.id)
-        : false;
-
-    // Add workout to plan
-    const handleAddToPlan = () => {
-        if (!workout) return;
-
-        if (alreadyAdded) {
-            setToastMessage("Already added to Today's Plan!");
-
-            setTimeout(() => {
-                setToastMessage(null);
-            }, 2500);
-
-            return;
-        }
-
-        if (plan.length >= 5) {
-            setToastMessage("Today's Plan is full! Maximum 5 workouts.");
-
-            setTimeout(() => {
-                setToastMessage(null);
-            }, 2500);
-
-            return;
-        }
-
-        addToPlan(workout);
-
-        setToastMessage("Added to Today's Plan! ✓");
-
-        setTimeout(() => {
-            setToastMessage(null);
-        }, 2500);
-    };
-
-    // Loading
     if (loading) {
         return (
-            <main className="flex min-h-screen items-center justify-center bg-[#090a0d] text-white">
-                <p className="text-sm text-white/50">
-                    Loading workout...
-                </p>
-            </main>
+            <div className="min-h-screen bg-[#090a0d] flex items-center justify-center text-white">
+                Loading details...
+            </div>
         );
     }
 
-    // Workout not found
     if (!workout) {
         return (
-            <main className="flex min-h-screen flex-col items-center justify-center bg-[#090a0d] text-white">
-                <h1 className="text-2xl font-black">
-                    Workout Not Found
-                </h1>
-
-                <Link
-                    href="/"
-                    className="mt-5 rounded-full bg-[#ccff00] px-5 py-2.5 text-sm font-bold text-black"
-                >
-                    Back to Workouts
-                </Link>
-            </main>
+            <div className="min-h-screen bg-[#090a0d] flex items-center justify-center text-white">
+                Workout not found.
+            </div>
         );
     }
 
     return (
-        <main className="relative min-h-screen bg-[#090a0d] px-4 py-8 text-white">
-
-            {/* Toast */}
-            {toastMessage && (
-                <div className="fixed bottom-6 right-6 z-50 rounded-xl bg-[#ccff00] px-5 py-3 text-sm font-bold text-black shadow-lg">
-                    {toastMessage}
-                </div>
-            )}
+        <main className="min-h-screen bg-[#090a0d] px-4 py-12 text-white">
 
             <div className="mx-auto max-w-6xl">
 
-                {/* Back Button */}
-                <Link
-                    href="/"
-                    className="mb-6 inline-block text-xs font-bold uppercase text-white/50 hover:text-white"
-                >
-                    ← Back to Workouts
-                </Link>
+                <div className="flex flex-col lg:flex-row gap-8 items-start rounded-3xl border border-white/10 bg-[#12141a] p-6 md:p-10">
 
-                {/* Main Details */}
-                <div className="grid gap-8 md:grid-cols-2">
-
-                    {/* Image */}
-                    <div>
+                    {/* Left Side - Image */}
+                    <div className="w-full lg:w-1/2 overflow-hidden rounded-2xl bg-white/5">
                         <img
                             src={workout.image}
                             alt={workout.name}
-                            className="h-[350px] w-full rounded-2xl object-cover md:h-[500px]"
+                            className="h-full w-full object-cover min-h-[350px] lg:min-h-[500px]"
                         />
                     </div>
 
-                    {/* Details */}
-                    <div className="flex flex-col justify-center">
+                    {/* Right Side - Details */}
+                    <div className="w-full lg:w-1/2 flex flex-col justify-between">
 
-                        {/* Muscle Groups */}
-                        <div className="flex flex-wrap gap-2">
-                            {workout.muscleGroups.map((muscle) => (
-                                <span
-                                    key={muscle}
-                                    className="rounded-full bg-[#ccff00] px-3 py-1 text-[10px] font-black uppercase text-black"
-                                >
-                                    {muscle}
-                                </span>
-                            ))}
-                        </div>
+                        <div>
 
-                        {/* Title */}
-                        <h1 className="mt-4 text-4xl font-black uppercase">
-                            {workout.name}
-                        </h1>
-
-                        {/* Difficulty */}
-                        <p className="mt-2 text-xs font-bold uppercase text-white/40">
-                            {workout.difficulty}
-                        </p>
-
-                        {/* Description */}
-                        <p className="mt-5 text-sm leading-6 text-white/60">
-                            {workout.description}
-                        </p>
-
-                        {/* Stats */}
-                        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-
-                            <div className="rounded-xl border border-white/10 bg-[#101217] p-4">
-                                <p className="text-[9px] uppercase text-white/40">
-                                    Duration
-                                </p>
-
-                                <p className="mt-2 font-black">
-                                    {workout.duration} min
-                                </p>
-                            </div>
-
-                            <div className="rounded-xl border border-white/10 bg-[#101217] p-4">
-                                <p className="text-[9px] uppercase text-white/40">
-                                    Calories
-                                </p>
-
-                                <p className="mt-2 font-black">
-                                    {workout.caloriesBurned}
-                                </p>
-                            </div>
-
-                            <div className="rounded-xl border border-white/10 bg-[#101217] p-4">
-                                <p className="text-[9px] uppercase text-white/40">
-                                    Sets
-                                </p>
-
-                                <p className="mt-2 font-black">
-                                    {workout.sets}
-                                </p>
-                            </div>
-
-                            <div className="rounded-xl border border-white/10 bg-[#101217] p-4">
-                                <p className="text-[9px] uppercase text-white/40">
-                                    Rating
-                                </p>
-
-                                <p className="mt-2 font-black">
-                                    ⭐ {workout.rating}
-                                </p>
-                            </div>
-
-                        </div>
-
-                        {/* Equipment & Reps */}
-                        <div className="mt-6 grid grid-cols-2 gap-4">
-
-                            <div>
-                                <p className="text-[10px] uppercase text-white/40">
-                                    Equipment
-                                </p>
-
-                                <p className="mt-1 text-sm font-bold">
-                                    {workout.equipment}
-                                </p>
-                            </div>
-
-                            <div>
-                                <p className="text-[10px] uppercase text-white/40">
-                                    Reps
-                                </p>
-
-                                <p className="mt-1 text-sm font-bold">
-                                    {workout.reps}
-                                </p>
-                            </div>
-
-                        </div>
-
-                        {/* Buttons */}
-                        <div className="mt-8 flex flex-wrap gap-3">
-
-                            {/* Add to Plan */}
-                            <button
-                                onClick={handleAddToPlan}
-                                disabled={alreadyAdded}
-                                className={`rounded-full px-6 py-3 text-xs font-black uppercase transition ${
-                                    alreadyAdded
-                                        ? "cursor-not-allowed bg-white/10 text-white/40"
-                                        : "bg-[#ccff00] text-black hover:opacity-80"
-                                }`}
-                            >
-                                {alreadyAdded
-                                    ? "Added to Plan ✓"
-                                    : "Add to Today's Plan"}
-                            </button>
-
-                            {/* Save */}
-                            <button
-                                className="rounded-full border border-white/20 px-6 py-3 text-xs font-black uppercase text-white transition hover:bg-white/10"
-                            >
-                                ♡ Save for Later
-                            </button>
-
-                        </div>
-
-                    </div>
-                </div>
-
-                {/* Instructions */}
-                <div className="mt-12 border-t border-white/10 pt-8">
-
-                    <h2 className="text-2xl font-black uppercase">
-                        Instructions
-                    </h2>
-
-                    <div className="mt-5 space-y-4">
-
-                        {workout.instructions.map(
-                            (instruction, index) => (
-                                <div
-                                    key={index}
-                                    className="flex gap-4 rounded-xl border border-white/10 bg-[#101217] p-4"
-                                >
-                                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#ccff00] text-xs font-black text-black">
-                                        {index + 1}
+                            {/* Muscle Groups */}
+                            <div className="flex flex-wrap gap-2 mb-4">
+                                {workout.muscleGroups.map((muscle) => (
+                                    <span
+                                        key={muscle}
+                                        className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold uppercase text-[#ccff00]"
+                                    >
+                                        {muscle}
                                     </span>
+                                ))}
+                            </div>
 
-                                    <p className="text-sm leading-6 text-white/60">
-                                        {instruction}
+                            {/* Title */}
+                            <h1 className="text-3xl md:text-4xl font-black uppercase tracking-wide">
+                                {workout.name}
+                            </h1>
+
+                            <p className="mt-2 text-sm text-white/50">
+                                {workout.equipment}
+                            </p>
+
+                            {/* Stats */}
+                            <div className="mt-6 grid grid-cols-3 gap-4 rounded-2xl border border-white/10 bg-[#090a0d] p-4 text-center">
+
+                                <div>
+                                    <p className="text-[10px] uppercase text-white/40 font-bold">
+                                        Duration
+                                    </p>
+
+                                    <p className="text-sm md:text-lg font-black mt-1">
+                                        ⏱ {workout.duration} min
                                     </p>
                                 </div>
-                            )
-                        )}
+
+                                <div>
+                                    <p className="text-[10px] uppercase text-white/40 font-bold">
+                                        Calories
+                                    </p>
+
+                                    <p className="text-sm md:text-lg font-black mt-1">
+                                        🔥 {workout.caloriesBurned} kcal
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <p className="text-[10px] uppercase text-white/40 font-bold">
+                                        Rating
+                                    </p>
+
+                                    <p className="text-sm md:text-lg font-black mt-1">
+                                        ⭐ {workout.rating}
+                                    </p>
+                                </div>
+
+                            </div>
+
+                            {/* Description */}
+                            <div className="mt-8">
+
+                                <h3 className="text-lg font-black uppercase">
+                                    Description
+                                </h3>
+
+                                <p className="mt-2 text-sm text-white/70 leading-relaxed">
+                                    {workout.description}
+                                </p>
+
+                            </div>
+
+                            {/* Instructions */}
+                            <div className="mt-8">
+
+                                <h3 className="text-lg font-black uppercase">
+                                    Instructions
+                                </h3>
+
+                                <ul className="mt-3 space-y-2">
+
+                                    {workout.instructions.map((step, index) => (
+                                        <li
+                                            key={index}
+                                            className="flex gap-3 text-sm text-white/70"
+                                        >
+                                            <span className="font-black text-[#ccff00]">
+                                                {index + 1}.
+                                            </span>
+
+                                            {step}
+                                        </li>
+                                    ))}
+
+                                </ul>
+
+                            </div>
+
+                        </div>
+
+       {/* Buttons */}
+{/* Buttons */}
+<div className="mt-10 flex flex-wrap gap-4 pt-4 border-t border-white/10">
+
+    {(() => {
+        const isInPlan = plan.some((item) => item.id === workout.id);
+
+        return (
+            <button
+                onClick={() => {
+                    if (!isInPlan) {
+                        addToPlan(workout);
+                        toast.success(
+                            `${workout.name} added to Today's Plan! 🚀`
+                        );
+                    }
+                }}
+                disabled={isInPlan}
+                className={`flex-1 rounded-full px-6 py-3.5 text-xs font-black uppercase transition ${
+                    isInPlan
+                        ? "bg-white/10 text-white/40 cursor-not-allowed"
+                        : "bg-[#ccff00] text-black hover:opacity-95"
+                }`}
+            >
+                {isInPlan ? "Added to Plan ✓" : "+ Add to Plan"}
+            </button>
+        );
+    })()}
+
+    <SavedButton workout={workout} />
+
+</div>
 
                     </div>
 
                 </div>
 
             </div>
+
         </main>
     );
-};
-
-export default Page;
+}

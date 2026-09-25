@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePlan } from "@/app/context/PlanContext";
+import { toast } from "react-toastify";
 
 const MyPlanPage = () => {
     const { plan, removeFromPlan } = usePlan();
@@ -19,27 +20,22 @@ const MyPlanPage = () => {
         return [];
     });
 
-    const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-    // Toast
-    const showToast = (message: string) => {
-        setToastMessage(message);
-
-        setTimeout(() => {
-            setToastMessage(null);
-        }, 2500);
-    };
-
-    // Remove workout
-    const handleRemove = (id: number) => {
+    // Remove workout using react-toastify
+    const handleRemove = (id: number, name: string) => {
         removeFromPlan(id);
-        showToast("Removed from Today's Plan");
+        toast.error(`Removed "${name}" from Today's Plan 🗑️`, {
+            position: "bottom-right",
+            autoClose: 2500,
+        });
     };
 
-    // Mark as done
+    // Mark as done using react-toastify
     const markAsDone = (id: number, name: string) => {
         if (completedIds.includes(id)) {
-            showToast("Workout already marked as done!");
+            toast.info("Workout already marked as done!", {
+                position: "bottom-right",
+                autoClose: 2500,
+            });
             return;
         }
 
@@ -52,7 +48,10 @@ const MyPlanPage = () => {
             JSON.stringify(updated)
         );
 
-        showToast(`Completed: ${name}! 🎉`);
+        toast.success(`Completed: ${name}! 🎉`, {
+            position: "bottom-right",
+            autoClose: 2500,
+        });
     };
 
     // Metrics
@@ -70,13 +69,6 @@ const MyPlanPage = () => {
 
     return (
         <main className="relative min-h-screen bg-[#090a0d] px-4 py-10 text-white">
-
-            {/* Toast */}
-            {toastMessage && (
-                <div className="fixed bottom-6 right-6 z-50 rounded-xl bg-[#ccff00] px-5 py-3 text-sm font-bold text-black shadow-lg">
-                    {toastMessage}
-                </div>
-            )}
 
             <div className="mx-auto max-w-7xl">
 
@@ -127,23 +119,31 @@ const MyPlanPage = () => {
                 </div>
 
                 {/* Tabs */}
-                <div className="mt-8 flex gap-3">
+  <div className="mt-8 flex gap-3">
 
-                    <button
-                        onClick={() => setActiveTab("today")}
-                        className="rounded-full bg-[#ccff00] px-6 py-2.5 text-xs font-black uppercase tracking-wider text-black"
-                    >
-                        Today&apos;s Plan ({plan.length})
-                    </button>
+    <button
+        onClick={() => setActiveTab("today")}
+        className={`rounded-full px-6 py-2.5 text-xs font-black uppercase tracking-wider transition ${
+            activeTab === "today"
+                ? "bg-[#ccff00] text-black"
+                : "border border-white/20 text-white/60 hover:text-white"
+        }`}
+    >
+        Today&apos;s Plan ({plan.length})
+    </button>
 
-                    <button
-                        onClick={() => setActiveTab("saved")}
-                        className="rounded-full border border-white/20 px-6 py-2.5 text-xs font-black uppercase tracking-wider text-white/50"
-                    >
-                        Saved (0)
-                    </button>
+    <button
+        onClick={() => setActiveTab("saved")}
+        className={`rounded-full px-6 py-2.5 text-xs font-black uppercase tracking-wider transition ${
+            activeTab === "saved"
+                ? "bg-[#ccff00] text-black"
+                : "border border-white/20 text-white/60 hover:text-white"
+        }`}
+    >
+        Saved (0)
+    </button>
 
-                </div>
+</div>
 
                 {/* Saved Tab */}
                 {activeTab === "saved" && (
@@ -281,7 +281,8 @@ const MyPlanPage = () => {
                                                 <button
                                                     onClick={() =>
                                                         handleRemove(
-                                                            workout.id
+                                                            workout.id,
+                                                            workout.name
                                                         )
                                                     }
                                                     className="rounded-full bg-red-500/10 px-4 py-2 text-xs font-bold text-red-400 transition hover:bg-red-500/20"

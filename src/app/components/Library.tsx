@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface Workout {
     id: number;
@@ -20,154 +21,137 @@ interface Workout {
 }
 
 const Library = () => {
+    const router = useRouter();
+
     const [workouts, setWorkouts] = useState<Workout[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch("https://api.abcz.workers.dev/api/fitlog")
-            .then((res) => {
-                if (!res.ok) {
-                    throw new Error("Failed to fetch workouts");
-                }
-
-                return res.json();
-            })
-            .then((data) => {
+        const fetchWorkouts = async () => {
+            try {
+                const response = await fetch(
+                    "https://api.abcz.workers.dev/api/fitlog"
+                );
+                const data = await response.json();
                 setWorkouts(data);
+            } catch (error) {
+                console.error("Failed to fetch workouts:", error);
+            } finally {
                 setLoading(false);
-            })
-            .catch((error) => {
-                console.log(error);
-                setLoading(false);
-            });
+            }
+        };
+
+        fetchWorkouts();
     }, []);
 
+    if (loading) {
+        return (
+            <section className="bg-[#090a0d] px-4 py-16 text-center text-white">
+                <p className="text-sm text-white/50">
+                    Loading workouts...
+                </p>
+            </section>
+        );
+    }
+
     return (
-        <section className="bg-[#090a0d] px-4 py-12 text-white">
+        <section className="bg-[#090a0d] px-4 py-16 text-white">
             <div className="mx-auto max-w-7xl">
-                
-                {/* Section Header */}
+
+                {/* Header */}
                 <div className="mb-8">
-                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#ccff00]">
+                    <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#ccff00]">
                         Workout Library
                     </p>
 
-                    <h2 className="mt-2 text-3xl font-black uppercase md:text-4xl">
-                        Choose Your Workout
+                    <h2 className="mt-2 text-3xl font-black uppercase">
+                        Train With Intent
                     </h2>
 
-                    <p className="mt-2 max-w-xl text-sm text-white/50">
-                        Explore workouts and choose the right one for your
-                        training session.
+                    <p className="mt-2 text-sm text-white/50">
+                        Choose a workout and start building your plan.
                     </p>
                 </div>
 
-                {/* Loading */}
-                {loading && (
-                    <div className="flex min-h-[300px] items-center justify-center">
-                        <p className="text-sm text-white/50">
-                            Loading workouts...
-                        </p>
-                    </div>
-                )}
-
-                {/* Workout Cards */}
-                {!loading && workouts.length > 0 && (
-                    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                        {workouts.map((workout) => (
-                            <Link
-                                href={`/workout/${workout.id}`}
-                                key={workout.id}
-                                className="group overflow-hidden rounded-2xl border border-white/10 bg-[#12141a] transition hover:-translate-y-1 hover:border-[#ccff00]/50"
+                {/* Cards Grid */}
+                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {workouts.map((workout) => (
+                        <div
+                            key={workout.id}
+                            className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-[#12141a] transition hover:-translate-y-1 hover:border-[#ccff00]/50"
+                        >
+                            {/* Clickable Area for Details */}
+                            <div
+                                onClick={() => router.push(`/workout/${workout.id}`)}
+                                className="cursor-pointer"
                             >
                                 {/* Image */}
-                                <div className="relative overflow-hidden">
+                                <div className="overflow-hidden">
                                     <img
                                         src={workout.image}
                                         alt={workout.name}
                                         className="h-52 w-full object-cover transition duration-300 group-hover:scale-105"
                                     />
-
-                                    <div className="absolute left-3 top-3 rounded-full bg-black/70 px-3 py-1 text-[10px] font-bold uppercase text-white">
-                                        {workout.difficulty}
-                                    </div>
                                 </div>
 
-                                {/* Details */}
+                                {/* Content */}
                                 <div className="p-5">
-                                    {/* Muscle Groups */}
-                                    <div className="flex flex-wrap gap-2">
-                                        {workout.muscleGroups.map((muscle) => (
-                                            <span
-                                                key={muscle}
-                                                className="rounded-full bg-[#ccff00] px-2.5 py-1 text-[9px] font-black uppercase text-black"
-                                            >
-                                                {muscle}
-                                            </span>
-                                        ))}
+                                    <div className="flex items-start justify-between gap-3">
+                                        <h3 className="text-sm font-black uppercase tracking-wide">
+                                            {workout.name}
+                                        </h3>
+
+                                        <span className="shrink-0 text-xs text-white/50">
+                                            ⭐ {workout.rating}
+                                        </span>
                                     </div>
 
-                                    {/* Name */}
-                                    <h3 className="mt-4 text-lg font-black uppercase">
-                                        {workout.name}
-                                    </h3>
-
-                                    {/* Description */}
-                                    <p className="mt-2 line-clamp-2 text-xs leading-5 text-white/50">
-                                        {workout.description}
+                                    <p className="mt-2 text-xs text-white/40">
+                                        {workout.equipment}
                                     </p>
 
-                                    {/* Stats */}
-                                    <div className="mt-5 grid grid-cols-3 gap-2 border-t border-white/10 pt-4">
-                                        <div>
-                                            <p className="text-[9px] uppercase text-white/30">
-                                                Time
-                                            </p>
-
-                                            <p className="mt-1 text-xs font-bold">
-                                                {workout.duration} min
-                                            </p>
-                                        </div>
-
-                                        <div>
-                                            <p className="text-[9px] uppercase text-white/30">
-                                                Calories
-                                            </p>
-
-                                            <p className="mt-1 text-xs font-bold">
-                                                {workout.caloriesBurned}
-                                            </p>
-                                        </div>
-
-                                        <div>
-                                            <p className="text-[9px] uppercase text-white/30">
-                                                Rating
-                                            </p>
-
-                                            <p className="mt-1 text-xs font-bold">
-                                                ⭐ {workout.rating}
-                                            </p>
-                                        </div>
+                                    {/* Tags */}
+                                    <div className="mt-4 flex flex-wrap gap-2">
+                                        {workout.muscleGroups
+                                            .slice(0, 2)
+                                            .map((muscle) => (
+                                                <span
+                                                    key={muscle}
+                                                    className="rounded-full border border-white/10 px-2.5 py-1 text-[9px] font-bold uppercase text-white/50"
+                                                >
+                                                    {muscle}
+                                                </span>
+                                            ))}
                                     </div>
 
-                                    {/* View Details */}
-                                    <div className="mt-5 text-xs font-black uppercase tracking-wider text-[#ccff00]">
-                                        View Details →
+                                    {/* Info */}
+                                    <div className="mt-5 flex items-center justify-between text-xs text-white/50">
+                                        <span>
+                                            ⏱ {workout.duration} min
+                                        </span>
+
+                                        <span>
+                                            🔥 {workout.caloriesBurned} kcal
+                                        </span>
                                     </div>
                                 </div>
-                            </Link>
-                        ))}
-                    </div>
-                )}
+                            </div>
 
-                {/* No Data */}
-                {!loading && workouts.length === 0 && (
-                    <div className="flex min-h-[300px] items-center justify-center rounded-2xl border border-dashed border-white/10">
-                        <p className="text-sm text-white/40">
-                            No workouts found.
-                        </p>
-                    </div>
-                )}
+                            {/* View Details Button */}
+                            <div className="p-5 pt-0">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        router.push(`/workout/${workout.id}`);
+                                    }}
+                                    className="w-full rounded-full border border-white/20 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition hover:border-[#ccff00] hover:text-[#ccff00]"
+                                >
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
         </section>
     );
