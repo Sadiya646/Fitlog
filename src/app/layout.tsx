@@ -28,7 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
 
 
 
-        <Navbar></Navbar>
+        <Navbar planCount={0} savedCount={0} />
 
 
         {children}
