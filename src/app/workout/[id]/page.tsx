@@ -29,8 +29,9 @@ const Page = ({
 
     const [workout, setWorkout] = useState<Workout | null>(null);
     const [loading, setLoading] = useState(true);
+    const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-    const { addToPlan } = usePlan();
+    const { plan, addToPlan } = usePlan();
 
     useEffect(() => {
         fetch(`https://api.abcz.workers.dev/api/fitlog/${id}`)
@@ -51,6 +52,45 @@ const Page = ({
             });
     }, [id]);
 
+    // Check whether workout is already in today's plan
+    const alreadyAdded = workout
+        ? plan.some((item) => item.id === workout.id)
+        : false;
+
+    // Add workout to plan
+    const handleAddToPlan = () => {
+        if (!workout) return;
+
+        if (alreadyAdded) {
+            setToastMessage("Already added to Today's Plan!");
+
+            setTimeout(() => {
+                setToastMessage(null);
+            }, 2500);
+
+            return;
+        }
+
+        if (plan.length >= 5) {
+            setToastMessage("Today's Plan is full! Maximum 5 workouts.");
+
+            setTimeout(() => {
+                setToastMessage(null);
+            }, 2500);
+
+            return;
+        }
+
+        addToPlan(workout);
+
+        setToastMessage("Added to Today's Plan! ✓");
+
+        setTimeout(() => {
+            setToastMessage(null);
+        }, 2500);
+    };
+
+    // Loading
     if (loading) {
         return (
             <main className="flex min-h-screen items-center justify-center bg-[#090a0d] text-white">
@@ -61,6 +101,7 @@ const Page = ({
         );
     }
 
+    // Workout not found
     if (!workout) {
         return (
             <main className="flex min-h-screen flex-col items-center justify-center bg-[#090a0d] text-white">
@@ -79,7 +120,15 @@ const Page = ({
     }
 
     return (
-        <main className="min-h-screen bg-[#090a0d] px-4 py-8 text-white">
+        <main className="relative min-h-screen bg-[#090a0d] px-4 py-8 text-white">
+
+            {/* Toast */}
+            {toastMessage && (
+                <div className="fixed bottom-6 right-6 z-50 rounded-xl bg-[#ccff00] px-5 py-3 text-sm font-bold text-black shadow-lg">
+                    {toastMessage}
+                </div>
+            )}
+
             <div className="mx-auto max-w-6xl">
 
                 {/* Back Button */}
@@ -205,13 +254,22 @@ const Page = ({
                         {/* Buttons */}
                         <div className="mt-8 flex flex-wrap gap-3">
 
+                            {/* Add to Plan */}
                             <button
-                                onClick={() => addToPlan(workout)}
-                                className="rounded-full bg-[#ccff00] px-6 py-3 text-xs font-black uppercase text-black transition hover:opacity-80"
+                                onClick={handleAddToPlan}
+                                disabled={alreadyAdded}
+                                className={`rounded-full px-6 py-3 text-xs font-black uppercase transition ${
+                                    alreadyAdded
+                                        ? "cursor-not-allowed bg-white/10 text-white/40"
+                                        : "bg-[#ccff00] text-black hover:opacity-80"
+                                }`}
                             >
-                                Add to Today&apos;s Plan
+                                {alreadyAdded
+                                    ? "Added to Plan ✓"
+                                    : "Add to Today's Plan"}
                             </button>
 
+                            {/* Save */}
                             <button
                                 className="rounded-full border border-white/20 px-6 py-3 text-xs font-black uppercase text-white transition hover:bg-white/10"
                             >
@@ -231,6 +289,7 @@ const Page = ({
                     </h2>
 
                     <div className="mt-5 space-y-4">
+
                         {workout.instructions.map(
                             (instruction, index) => (
                                 <div
@@ -247,6 +306,7 @@ const Page = ({
                                 </div>
                             )
                         )}
+
                     </div>
 
                 </div>

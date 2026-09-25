@@ -1,6 +1,11 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+    createContext,
+    useContext,
+    useEffect,
+    useState,
+} from "react";
 
 interface Workout {
     id: number;
@@ -20,72 +25,69 @@ interface Workout {
 
 interface PlanContextType {
     plan: Workout[];
-    savedWorkouts: Workout[];
     addToPlan: (workout: Workout) => void;
     removeFromPlan: (id: number) => void;
-    addToSaved: (workout: Workout) => void;
-    removeFromSaved: (id: number) => void;
 }
 
 const PlanContext = createContext<PlanContextType | undefined>(undefined);
 
-export const PlanProvider = ({ children }: { children: React.ReactNode }) => {
-    // Lazy initialization to prevent cascading render warnings
+export const PlanProvider = ({
+    children,
+}: {
+    children: React.ReactNode;
+}) => {
+    // localStorage থেকে শুরুতেই data load করবে
     const [plan, setPlan] = useState<Workout[]>(() => {
         if (typeof window !== "undefined") {
-            const saved = localStorage.getItem("fitlog_today_plan");
-            return saved ? JSON.parse(saved) : [];
+            const savedPlan = localStorage.getItem("fitlog-plan");
+
+            if (savedPlan) {
+                return JSON.parse(savedPlan);
+            }
         }
+
         return [];
     });
 
-    const [savedWorkouts, setSavedWorkouts] = useState<Workout[]>(() => {
-        if (typeof window !== "undefined") {
-            const saved = localStorage.getItem("fitlog_saved");
-            return saved ? JSON.parse(saved) : [];
-        }
-        return [];
-    });
-
+    // Plan change হলে localStorage-এ save করবে
     useEffect(() => {
-        localStorage.setItem("fitlog_today_plan", JSON.stringify(plan));
+        localStorage.setItem("fitlog-plan", JSON.stringify(plan));
     }, [plan]);
 
-    useEffect(() => {
-        localStorage.setItem("fitlog_saved", JSON.stringify(savedWorkouts));
-    }, [savedWorkouts]);
-
+    // Add workout
     const addToPlan = (workout: Workout) => {
         setPlan((prev) => {
-            if (prev.some((item) => item.id === workout.id)) return prev;
+            // আগে থেকেই থাকলে আবার add করবে না
+            const alreadyExists = prev.some(
+                (item) => item.id === workout.id
+            );
+
+            if (alreadyExists) {
+                return prev;
+            }
+
+            // Maximum 5 workouts
+            if (prev.length >= 5) {
+                return prev;
+            }
+
             return [...prev, workout];
         });
     };
 
+    // Remove workout
     const removeFromPlan = (id: number) => {
-        setPlan((prev) => prev.filter((item) => item.id !== id));
-    };
-
-    const addToSaved = (workout: Workout) => {
-        setSavedWorkouts((prev) => {
-            if (prev.some((item) => item.id === workout.id)) return prev;
-            return [...prev, workout];
-        });
-    };
-
-    const removeFromSaved = (id: number) => {
-        setSavedWorkouts((prev) => prev.filter((item) => item.id !== id));
+        setPlan((prev) =>
+            prev.filter((item) => item.id !== id)
+        );
     };
 
     return (
         <PlanContext.Provider
             value={{
                 plan,
-                savedWorkouts,
                 addToPlan,
                 removeFromPlan,
-                addToSaved,
-                removeFromSaved,
             }}
         >
             {children}
@@ -95,8 +97,12 @@ export const PlanProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const usePlan = () => {
     const context = useContext(PlanContext);
+
     if (!context) {
-        throw new Error("usePlan must be used inside PlanProvider");
+        throw new Error(
+            "usePlan must be used inside PlanProvider"
+        );
     }
+
     return context;
 };
