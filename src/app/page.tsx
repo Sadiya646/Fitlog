@@ -4,7 +4,7 @@ import Library from './components/Library';
 
 const page = () => {
   return (
-    <div>
+    <div className=' bg-[#111111] '>
       <Banner></Banner>
       <Library></Library>
 

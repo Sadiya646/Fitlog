@@ -86,7 +86,7 @@ const Library = () => {
                                     {workout.muscleGroups.map((muscle) => (
                                         <span
                                             key={muscle}
-                                            className="rounded-full bg-[#ccff00] px-2 py-1 text-[8px] font-black uppercase text-black"
+                                            className="rounded-full bg-[#ccff00] px-2 py-1 text-[10px] font-black uppercase text-black"
                                         >
                                             {muscle}
                                         </span>
@@ -99,12 +99,12 @@ const Library = () => {
                                 </h3>
 
                                 {/* Equipment */}
-                                <p className="mt-1 text-xs text-white/40">
+                                <p className="mt-1 text-[14px] text-white/40">
                                     {workout.equipment}
                                 </p>
 
                                 {/* Stats */}
-                                <div className="mt-4 flex justify-between border-t border-white/10 pt-3 text-[10px] text-white/50">
+                                <div className="mt-4 flex justify-between border-t border-white/10 pt-3 text-[13px] text-white/50">
                                     <span>
                                         ⏱ {workout.duration} min
                                     </span>
