@@ -14,6 +14,7 @@ const MyPlanPage = () => {
     const {
         plan,
         savedWorkouts,
+        isLoaded,
     } = usePlan();
 
     const [activeTab, setActiveTab] = useState<
@@ -57,6 +58,13 @@ const MyPlanPage = () => {
     };
 
     // Metrics
+    if(!isLoaded){
+        return(
+            <main className="flex min-h-screen items-center justify-center bg-[#090a0d] text-white">
+                <p className="text-xl text-white/50">Loading Workouts.....</p>
+            </main>
+        )
+    }
     const totalExercises = plan.length;
 
     const totalMinutes = plan.reduce(

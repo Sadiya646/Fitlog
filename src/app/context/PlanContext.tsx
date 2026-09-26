@@ -25,6 +25,7 @@ interface Workout {
 
 interface PlanContextType {
     plan: Workout[];
+    isLoaded:boolean;
     addToPlan: (workout: Workout) => boolean;
     removeFromPlan: (id: number) => void;
     savedWorkouts: Workout[];
@@ -44,13 +45,12 @@ export const PlanProvider = ({
     const [plan, setPlan] = useState<Workout[]>([]);
     const [savedWorkouts, setSavedWorkouts] =
         useState<Workout[]>([]);
+        const [isLoaded,setIsLoaded]=useState(false)
 
     useEffect(() => {
-        const savedPlan =
-            localStorage.getItem("fitlog-plan");
+        const savedPlan =localStorage.getItem("fitlog-plan");
 
-        const saved =
-            localStorage.getItem("fitlog-saved");
+        const saved =localStorage.getItem("fitlog-saved");
 
         if (savedPlan) {
             setPlan(JSON.parse(savedPlan));
@@ -59,6 +59,7 @@ export const PlanProvider = ({
         if (saved) {
             setSavedWorkouts(JSON.parse(saved));
         }
+        setIsLoaded(true)
     }, []);
 
     useEffect(() => {
@@ -129,6 +130,7 @@ export const PlanProvider = ({
         <PlanContext.Provider
             value={{
                 plan,
+                isLoaded,
                 addToPlan,
                 removeFromPlan,
                 savedWorkouts,

@@ -1,46 +1,55 @@
-import React from 'react';
-import bannerImage from "@/assets/banner.png"
-import Link from 'next/link';
+import React from "react";
+import bannerImage from "@/assets/banner.png";
+
 const Banner = () => {
     return (
-        <div className="w-full bg-[#111111] px-6 py-12 flex justify-center">
-            <div className="w-full max-w-6xl bg-[#18181b] border border-zinc-800 rounded-2xl p-8 md:p-16 flex flex-col md:flex-row items-center justify-between">
-                
-                {/* Left Side: Text Content */}
-                <div className="max-w-xl space-y-6">
-                    <span className="text-[#ccff00] text-xs font-bold tracking-widest uppercase">
-                        Workout Library
+        <section className="w-full bg-[#090a0d] px-4 py-12 md:px-6">
+            <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between overflow-hidden rounded-2xl border border-white/10 bg-[#12141a] p-8 md:flex-row md:p-12 lg:p-16">
+
+                {/* Left Side */}
+                <div className="w-full max-w-xl">
+
+                    {/* Eyebrow */}
+                    <span className="text-xs font-bold uppercase tracking-[0.3em] text-[#ccff00]">
+                        WORKOUT LIBRARY
                     </span>
-                    
-                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-none">
-                        TRAIN WITH INTENT. LOG EVERY SET.
+
+                    {/* Heading */}
+                    <h1 className="mt-4 text-4xl font-black uppercase leading-none tracking-tight text-white md:text-5xl lg:text-6xl">
+                        TRAIN WITH INTENT.
+                        <br />
+                        LOG EVERY SET.
                     </h1>
-                    
-                    <p className="text-zinc-400 text-sm md:text-base leading-relaxed">
-                        FitLog is a dark, no-nonsense gym companion: pick a lift, lock it into today's plan, and watch the week's work add up.
+
+                    {/* Subtitle */}
+                    <p className="mt-6 max-w-lg text-sm leading-relaxed text-white/50 md:text-base">
+                        FitLog is a dark, no-nonsense gym companion: pick a
+                        lift, lock it into today&apos;s plan, and watch the
+                        week&apos;s work add up.
                     </p>
-                    
-                    <div>
-                        <Link 
-                            href="/workouts" 
-                            className="inline-block bg-[#ccff00] text-black font-bold text-sm px-6 py-3 rounded-full hover:bg-[#b3e600] transition"
+
+                    {/* CTA */}
+                    <div className="mt-8">
+                        <a
+                            href="#library"
+                            className="inline-flex items-center gap-2 rounded-full bg-[#ccff00] px-6 py-3 text-sm font-black uppercase text-black transition hover:opacity-90"
                         >
-                            BROWSE WORKOUTS
-                        </Link>
+                            <span>BROWSE WORKOUTS</span>
+                            <span className="text-base">↓</span>
+                        </a>
                     </div>
                 </div>
 
-                {/* Right Side: Image Placeholder */}
-                <div className="mt-8 md:mt-0 relative w-full md:w-1/2 h-72 md:h-96 flex items-center justify-center">
-                    <img 
-                        src={bannerImage.src} 
-                        alt="Workout Banner Illustration" 
-                        className="object-contain max-h-full"
+                {/* Right Side - Banner Image */}
+                <div className="mt-10 flex w-full items-center justify-center md:mt-0 md:w-1/2">
+                    <img
+                        src={bannerImage.src}
+                        alt="Workout Banner"
+                        className="h-auto max-h-[380px] w-full object-contain"
                     />
                 </div>
-
             </div>
-        </div>
+        </section>
     );
 };
 
