@@ -63,7 +63,6 @@ const MyPlanPage = () => {
         );
     }
 
-    // Metrics
     const totalExercises = plan.length;
 
     const totalMinutes = plan.reduce(
@@ -99,14 +98,13 @@ const MyPlanPage = () => {
         <main className="min-h-screen bg-[#090a0d] px-4 py-10 text-white">
             <div className="mx-auto max-w-7xl">
 
-                {/* Header + Metrics */}
                 <PlanHeader
                     totalExercises={totalExercises}
                     totalMinutes={totalMinutes}
                     totalCalories={totalCalories}
                 />
 
-                {/* Tabs + Sort */}
+
                 <PlanTabs
                     activeTab={activeTab}
                     setActiveTab={setActiveTab}
@@ -116,9 +114,7 @@ const MyPlanPage = () => {
                     setSortBy={setSortBy}
                 />
 
-                {/* =========================
-                    SAVED TAB
-                ========================= */}
+                
                 {activeTab === "saved" && (
                     <div className="mt-6">
 
@@ -157,9 +153,7 @@ const MyPlanPage = () => {
                     </div>
                 )}
 
-                {/* =========================
-                    TODAY'S PLAN TAB
-                ========================= */}
+
                 {activeTab === "today" && (
                     <div className="mt-6">
 

@@ -25,6 +25,7 @@ interface Workout {
 interface TodayPlanCardProps {
     workout: Workout;
     markAsDone: (id: number, name: string) => void;
+    isDone:boolean;
 }
 
 const TodayPlanCard = ({

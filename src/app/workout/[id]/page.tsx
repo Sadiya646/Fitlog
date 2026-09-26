@@ -92,7 +92,7 @@ export default function WorkoutDetailPage() {
             <div className="mx-auto max-w-6xl">
                 <div className="flex flex-col gap-8 rounded-3xl border border-white/10 bg-[#12141a] p-6 md:p-10 lg:flex-row">
 
-                    {/* ================= LEFT SIDE ================= */}
+                    
                     <div className="w-full lg:w-1/2">
                         <div className="overflow-hidden rounded-2xl bg-white/5">
                             <img
@@ -103,7 +103,7 @@ export default function WorkoutDetailPage() {
                         </div>
                     </div>
 
-                    {/* ================= RIGHT SIDE ================= */}
+                 
                     <div className="flex w-full flex-col lg:w-1/2">
 
                         {/* Category Tags */}
@@ -123,12 +123,12 @@ export default function WorkoutDetailPage() {
                             {workout.name}
                         </h1>
 
-                        {/* Description */}
+                       
                         <p className="mt-4 text-sm leading-relaxed text-white/60">
                             {workout.description}
                         </p>
 
-                        {/* ================= KEY SPECS ================= */}
+                       
                         <div className="mt-7">
                             <h2 className="mb-3 text-sm font-black uppercase tracking-wider text-white">
                                 Key Specs
@@ -158,7 +158,7 @@ export default function WorkoutDetailPage() {
                                     </span>
                                 </div>
 
-                                {/* Sets */}
+                               
                                 <div className="flex items-center justify-between border-b border-white/10 px-5 py-3.5">
                                     <span className="text-[10px] font-bold uppercase tracking-wider text-white/40">
                                         Sets
@@ -216,7 +216,7 @@ export default function WorkoutDetailPage() {
                             </div>
                         </div>
 
-                        {/* ================= INSTRUCTIONS ================= */}
+                     
                         <div className="mt-7">
                             <h2 className="text-sm font-black uppercase tracking-wider">
                                 Instructions
@@ -242,7 +242,7 @@ export default function WorkoutDetailPage() {
                             </ol>
                         </div>
 
-                        {/* ================= BUTTONS ================= */}
+                        
                         <div className="mt-8 flex flex-wrap gap-3 border-t border-white/10 pt-5">
 
                             {/* Add to Today's Plan */}
