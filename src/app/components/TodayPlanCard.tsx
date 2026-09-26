@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from "react";
@@ -23,14 +24,16 @@ interface Workout {
 
 interface TodayPlanCardProps {
     workout: Workout;
+    markAsDone: (id: number, name: string) => void;
 }
 
 const TodayPlanCard = ({
     workout,
+    markAsDone,
 }: TodayPlanCardProps) => {
-
     const { removeFromPlan } = usePlan();
 
+    // Remove workout
     const handleRemove = () => {
         removeFromPlan(workout.id);
 
@@ -39,12 +42,9 @@ const TodayPlanCard = ({
         );
     };
 
+    // Mark workout as done
     const handleDone = () => {
-        removeFromPlan(workout.id);
-
-        toast.success(
-            `"${workout.name}" completed successfully! 🎉`
-        );
+        markAsDone(workout.id, workout.name);
     };
 
     return (
@@ -69,6 +69,7 @@ const TodayPlanCard = ({
                     </p>
 
                     <div className="mt-2 flex flex-wrap gap-4 text-xs text-white/60">
+
                         <span>
                             ⏱ {workout.duration} min
                         </span>
@@ -80,6 +81,7 @@ const TodayPlanCard = ({
                         <span>
                             ⭐ {workout.rating}
                         </span>
+
                     </div>
                 </div>
 
@@ -88,6 +90,7 @@ const TodayPlanCard = ({
             {/* Buttons */}
             <div className="flex w-full flex-wrap items-center justify-end gap-3 md:w-auto">
 
+                {/* View Details */}
                 <Link
                     href={`/workout/${workout.id}`}
                     className="rounded-full border border-white/20 px-5 py-2 text-xs font-bold uppercase tracking-wider text-white transition hover:bg-white/10"
@@ -95,13 +98,15 @@ const TodayPlanCard = ({
                     View Details
                 </Link>
 
+                {/* Mark as Done */}
                 <button
                     onClick={handleDone}
                     className="rounded-full bg-[#ccff00] px-5 py-2 text-xs font-black uppercase tracking-wider text-black transition hover:opacity-90"
                 >
-                    Mark as Done
+                    ✓ Mark as Done
                 </button>
 
+                {/* Remove */}
                 <button
                     onClick={handleRemove}
                     className="rounded-full bg-red-500/10 px-4 py-2 text-xs font-bold text-red-400 transition hover:bg-red-500/20"

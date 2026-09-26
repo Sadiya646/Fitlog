@@ -50,9 +50,13 @@ const Library = () => {
                 id="library"
                 className="bg-[#090a0d] px-4 py-16 text-center text-white"
             >
-                <p className="text-sm text-white/50">
-                    Loading workouts...
-                </p>
+                <div className="flex flex-col items-center justify-center gap-4">
+    <div className="h-10 w-10 animate-spin rounded-full border-4 border-white/10 border-t-[#ccff00]" />
+
+    <p className="text-sm text-white/50">
+        Loading workouts...
+    </p>
+</div>
             </section>
         );
     }

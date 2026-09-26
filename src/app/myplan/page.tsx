@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePlan } from "@/app/context/PlanContext";
 import { toast } from "react-toastify";
 
+import { usePlan } from "@/app/context/PlanContext";
 import PlanHeader from "@/app/components/PlanHeader";
 import PlanTabs from "@/app/components/PlanTabs";
 import SavedCard from "@/app/components/SavedCard";
@@ -15,56 +15,55 @@ const MyPlanPage = () => {
         plan,
         savedWorkouts,
         isLoaded,
+        removeFromPlan,
     } = usePlan();
 
     const [activeTab, setActiveTab] = useState<
         "today" | "saved"
     >("today");
 
-    const [completedIds, setCompletedIds] = useState<number[]>(() => {
-        if (typeof window !== "undefined") {
-            return JSON.parse(
-                localStorage.getItem("fitlog_completed") || "[]"
-            );
-        }
+    const [sortBy, setSortBy] = useState<
+        "duration" | "calories" | "rating"
+    >("duration");
 
-        return [];
-    });
+    const [completedIds, setCompletedIds] = useState<number[]>([]);
 
-    // Mark workout as done
-    const markAsDone = (id: number, name: string) => {
-        if (completedIds.includes(id)) {
-            toast.info("Workout already marked as done!", {
-                position: "bottom-right",
-                autoClose: 2500,
-            });
-
-            return;
-        }
-
-        const updated = [...completedIds, id];
-
-        setCompletedIds(updated);
-
-        localStorage.setItem(
-            "fitlog_completed",
-            JSON.stringify(updated)
+    // Load completed workouts from localStorage
+    useEffect(() => {
+        const savedCompleted = localStorage.getItem(
+            "fitlog_completed"
         );
 
-        toast.success(`Completed: ${name}! 🎉`, {
-            position: "bottom-right",
-            autoClose: 2500,
-        });
-    };
+        if (savedCompleted) {
+            setCompletedIds(JSON.parse(savedCompleted));
+        }
+    }, []);
+
+    // Mark workout as done
+  const markAsDone = (id: number, name: string) => {
+    removeFromPlan(id);
+
+    toast.success(
+        `"${name}" completed successfully! 🎉`
+    );
+};
+
+    // Loading
+    if (!isLoaded) {
+        return (
+            <main className="flex min-h-screen items-center justify-center bg-[#090a0d] text-white">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="h-10 w-10 animate-spin rounded-full border-4 border-white/10 border-t-[#ccff00]" />
+
+                    <p className="text-sm text-white/50">
+                        Loading workouts...
+                    </p>
+                </div>
+            </main>
+        );
+    }
 
     // Metrics
-    if(!isLoaded){
-        return(
-            <main className="flex min-h-screen items-center justify-center bg-[#090a0d] text-white">
-                <p className="text-xl text-white/50">Loading Workouts.....</p>
-            </main>
-        )
-    }
     const totalExercises = plan.length;
 
     const totalMinutes = plan.reduce(
@@ -79,9 +78,25 @@ const MyPlanPage = () => {
         0
     );
 
+    // Sort Today's Plan
+    const sortedPlan = [...plan].sort((a, b) => {
+        if (sortBy === "duration") {
+            return a.duration - b.duration;
+        }
+
+        if (sortBy === "calories") {
+            return a.caloriesBurned - b.caloriesBurned;
+        }
+
+        if (sortBy === "rating") {
+            return b.rating - a.rating;
+        }
+
+        return 0;
+    });
+
     return (
         <main className="min-h-screen bg-[#090a0d] px-4 py-10 text-white">
-
             <div className="mx-auto max-w-7xl">
 
                 {/* Header + Metrics */}
@@ -91,15 +106,19 @@ const MyPlanPage = () => {
                     totalCalories={totalCalories}
                 />
 
-                {/* Tabs */}
+                {/* Tabs + Sort */}
                 <PlanTabs
                     activeTab={activeTab}
                     setActiveTab={setActiveTab}
                     planCount={plan.length}
                     savedCount={savedWorkouts.length}
+                    sortBy={sortBy}
+                    setSortBy={setSortBy}
                 />
 
-                {/* Saved */}
+                {/* =========================
+                    SAVED TAB
+                ========================= */}
                 {activeTab === "saved" && (
                     <div className="mt-6">
 
@@ -116,7 +135,7 @@ const MyPlanPage = () => {
 
                                 <Link
                                     href="/"
-                                    className="mt-6 rounded-full bg-[#ccff00] px-6 py-3 text-xs font-black uppercase text-black"
+                                    className="mt-6 rounded-full bg-[#ccff00] px-6 py-3 text-xs font-black uppercase text-black transition hover:bg-[#b8e600]"
                                 >
                                     Go to Workouts
                                 </Link>
@@ -138,7 +157,9 @@ const MyPlanPage = () => {
                     </div>
                 )}
 
-                {/* Today's Plan */}
+                {/* =========================
+                    TODAY'S PLAN TAB
+                ========================= */}
                 {activeTab === "today" && (
                     <div className="mt-6">
 
@@ -155,7 +176,7 @@ const MyPlanPage = () => {
 
                                 <Link
                                     href="/"
-                                    className="mt-6 rounded-full bg-[#ccff00] px-6 py-3 text-xs font-black uppercase text-black"
+                                    className="mt-6 rounded-full bg-[#ccff00] px-6 py-3 text-xs font-black uppercase text-black transition hover:bg-[#b8e600]"
                                 >
                                     Go to Workouts
                                 </Link>
@@ -164,7 +185,7 @@ const MyPlanPage = () => {
                         ) : (
                             <div className="space-y-4">
 
-                                {plan.map((workout) => (
+                                {sortedPlan.map((workout) => (
                                     <TodayPlanCard
                                         key={workout.id}
                                         workout={workout}
