@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 interface Workout {
@@ -32,6 +31,7 @@ const Library = () => {
                 const response = await fetch(
                     "https://api.abcz.workers.dev/api/fitlog"
                 );
+
                 const data = await response.json();
                 setWorkouts(data);
             } catch (error) {
@@ -80,9 +80,11 @@ const Library = () => {
                             key={workout.id}
                             className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-[#12141a] transition hover:-translate-y-1 hover:border-[#ccff00]/50"
                         >
-                            {/* Clickable Area for Details */}
+                            {/* Clickable Area */}
                             <div
-                                onClick={() => router.push(`/workout/${workout.id}`)}
+                                onClick={() =>
+                                    router.push(`/workout/${workout.id}`)
+                                }
                                 className="cursor-pointer"
                             >
                                 {/* Image */}
@@ -96,16 +98,13 @@ const Library = () => {
 
                                 {/* Content */}
                                 <div className="p-5">
-                                    <div className="flex items-start justify-between gap-3">
-                                        <h3 className="text-sm font-black uppercase tracking-wide">
-                                            {workout.name}
-                                        </h3>
 
-                                        <span className="shrink-0 text-xs text-white/50">
-                                            ⭐ {workout.rating}
-                                        </span>
-                                    </div>
+                                    {/* Title */}
+                                    <h3 className="text-sm font-black uppercase tracking-wide">
+                                        {workout.name}
+                                    </h3>
 
+                                    {/* Equipment */}
                                     <p className="mt-2 text-xs text-white/40">
                                         {workout.equipment}
                                     </p>
@@ -124,15 +123,42 @@ const Library = () => {
                                             ))}
                                     </div>
 
-                                    {/* Info */}
-                                    <div className="mt-5 flex items-center justify-between text-xs text-white/50">
-                                        <span>
-                                            ⏱ {workout.duration} min
-                                        </span>
+                                    {/* Stats */}
+                                    <div className="mt-5 grid grid-cols-3 border-t border-white/10 pt-4">
 
-                                        <span>
-                                            🔥 {workout.caloriesBurned} kcal
-                                        </span>
+                                        {/* Duration */}
+                                        <div className="text-center">
+                                            <p className="text-[9px] font-bold uppercase tracking-wide text-white/40">
+                                                Duration
+                                            </p>
+
+                                            <p className="mt-2 text-xs font-black">
+                                                ⏱ {workout.duration} min
+                                            </p>
+                                        </div>
+
+                                        {/* Calories */}
+                                        <div className="border-x border-white/10 text-center">
+                                            <p className="text-[9px] font-bold uppercase tracking-wide text-white/40">
+                                                Calories
+                                            </p>
+
+                                            <p className="mt-2 text-xs font-black">
+                                                🔥 {workout.caloriesBurned} kcal
+                                            </p>
+                                        </div>
+
+                                        {/* Rating */}
+                                        <div className="text-center">
+                                            <p className="text-[9px] font-bold uppercase tracking-wide text-white/40">
+                                                Rating
+                                            </p>
+
+                                            <p className="mt-2 text-xs font-black">
+                                                ⭐ {workout.rating}
+                                            </p>
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -142,7 +168,9 @@ const Library = () => {
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        router.push(`/workout/${workout.id}`);
+                                        router.push(
+                                            `/workout/${workout.id}`
+                                        );
                                     }}
                                     className="w-full rounded-full border border-white/20 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition hover:border-[#ccff00] hover:text-[#ccff00]"
                                 >
