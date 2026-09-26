@@ -3,12 +3,19 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePlan } from "@/app/context/PlanContext";
+import SavedCard from "@/app/components/SavedCard";
 import { toast } from "react-toastify";
 
 const MyPlanPage = () => {
-    const { plan, removeFromPlan } = usePlan();
+    const {
+        plan,
+        removeFromPlan,
+        savedWorkouts,
+    } = usePlan();
 
-    const [activeTab, setActiveTab] = useState<"today" | "saved">("today");
+    const [activeTab, setActiveTab] = useState<
+        "today" | "saved"
+    >("today");
 
     const [completedIds, setCompletedIds] = useState<number[]>(() => {
         if (typeof window !== "undefined") {
@@ -20,22 +27,27 @@ const MyPlanPage = () => {
         return [];
     });
 
-    // Remove workout using react-toastify
+    // Remove workout from Today's Plan
     const handleRemove = (id: number, name: string) => {
         removeFromPlan(id);
-        toast.error(`Removed "${name}" from Today's Plan 🗑️`, {
-            position: "bottom-right",
-            autoClose: 2500,
-        });
+
+        toast.error(
+            `Removed "${name}" from Today's Plan 🗑️`,
+            {
+                position: "bottom-right",
+                autoClose: 2500,
+            }
+        );
     };
 
-    // Mark as done using react-toastify
+    // Mark workout as done
     const markAsDone = (id: number, name: string) => {
         if (completedIds.includes(id)) {
             toast.info("Workout already marked as done!", {
                 position: "bottom-right",
                 autoClose: 2500,
             });
+
             return;
         }
 
@@ -58,18 +70,19 @@ const MyPlanPage = () => {
     const totalExercises = plan.length;
 
     const totalMinutes = plan.reduce(
-        (total, workout) => total + workout.duration,
+        (total, workout) =>
+            total + workout.duration,
         0
     );
 
     const totalCalories = plan.reduce(
-        (total, workout) => total + workout.caloriesBurned,
+        (total, workout) =>
+            total + workout.caloriesBurned,
         0
     );
 
     return (
         <main className="relative min-h-screen bg-[#090a0d] px-4 py-10 text-white">
-
             <div className="mx-auto max-w-7xl">
 
                 {/* Header */}
@@ -119,50 +132,67 @@ const MyPlanPage = () => {
                 </div>
 
                 {/* Tabs */}
-  <div className="mt-8 flex gap-3">
+                <div className="mt-8 flex gap-3">
 
-    <button
-        onClick={() => setActiveTab("today")}
-        className={`rounded-full px-6 py-2.5 text-xs font-black uppercase tracking-wider transition ${
-            activeTab === "today"
-                ? "bg-[#ccff00] text-black"
-                : "border border-white/20 text-white/60 hover:text-white"
-        }`}
-    >
-        Today&apos;s Plan ({plan.length})
-    </button>
+                    <button
+                        onClick={() => setActiveTab("today")}
+                        className={`rounded-full px-6 py-2.5 text-xs font-black uppercase tracking-wider transition ${
+                            activeTab === "today"
+                                ? "bg-[#ccff00] text-black"
+                                : "border border-white/20 text-white/60 hover:text-white"
+                        }`}
+                    >
+                        Today&apos;s Plan ({plan.length})
+                    </button>
 
-    <button
-        onClick={() => setActiveTab("saved")}
-        className={`rounded-full px-6 py-2.5 text-xs font-black uppercase tracking-wider transition ${
-            activeTab === "saved"
-                ? "bg-[#ccff00] text-black"
-                : "border border-white/20 text-white/60 hover:text-white"
-        }`}
-    >
-        Saved (0)
-    </button>
+                    <button
+                        onClick={() => setActiveTab("saved")}
+                        className={`rounded-full px-6 py-2.5 text-xs font-black uppercase tracking-wider transition ${
+                            activeTab === "saved"
+                                ? "bg-[#ccff00] text-black"
+                                : "border border-white/20 text-white/60 hover:text-white"
+                        }`}
+                    >
+                        Saved ({savedWorkouts.length})
+                    </button>
 
-</div>
+                </div>
 
                 {/* Saved Tab */}
                 {activeTab === "saved" && (
-                    <div className="mt-12 flex min-h-[350px] flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-[#12141a]/50 p-8 text-center">
+                    <div className="mt-6">
 
-                        <h2 className="text-xl font-black uppercase tracking-wide">
-                            Nothing Here Yet
-                        </h2>
+                        {savedWorkouts.length === 0 ? (
+                            <div className="flex min-h-[350px] flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-[#12141a]/50 p-8 text-center">
 
-                        <p className="mt-2 max-w-sm text-sm text-white/40">
-                            You haven&apos;t saved any workouts for later yet.
-                        </p>
+                                <h2 className="text-xl font-black uppercase tracking-wide">
+                                    Nothing Here Yet
+                                </h2>
 
-                        <Link
-                            href="/"
-                            className="mt-6 rounded-full bg-[#ccff00] px-6 py-3 text-xs font-black uppercase text-black transition hover:opacity-90"
-                        >
-                            Go to Workouts
-                        </Link>
+                                <p className="mt-2 max-w-sm text-sm text-white/40">
+                                    You haven&apos;t saved any workouts for later yet.
+                                </p>
+
+                                <Link
+                                    href="/"
+                                    className="mt-6 rounded-full bg-[#ccff00] px-6 py-3 text-xs font-black uppercase text-black transition hover:opacity-90"
+                                >
+                                    Go to Workouts
+                                </Link>
+
+                            </div>
+                        ) : (
+                            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+
+                                {savedWorkouts.map((workout) => (
+                                    <SavedCard
+                                        key={workout.id}
+                                        workout={workout}
+                                    />
+                                ))}
+
+                            </div>
+                        )}
 
                     </div>
                 )}
@@ -194,7 +224,6 @@ const MyPlanPage = () => {
                             <div className="mt-6 space-y-4">
 
                                 {plan.map((workout) => {
-
                                     const isDone =
                                         completedIds.includes(workout.id);
 
