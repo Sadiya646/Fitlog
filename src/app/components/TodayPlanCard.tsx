@@ -25,12 +25,13 @@ interface Workout {
 interface TodayPlanCardProps {
     workout: Workout;
     markAsDone: (id: number, name: string) => void;
-    isDone:boolean;
+    // isDone:boolean;
 }
 
 const TodayPlanCard = ({
     workout,
     markAsDone,
+    
 }: TodayPlanCardProps) => {
     const { removeFromPlan } = usePlan();
 

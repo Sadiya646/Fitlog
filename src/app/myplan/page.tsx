@@ -1,6 +1,7 @@
+
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { toast } from "react-toastify";
 
@@ -26,27 +27,14 @@ const MyPlanPage = () => {
         "duration" | "calories" | "rating"
     >("duration");
 
-    const [completedIds, setCompletedIds] = useState<number[]>([]);
-
-    // Load completed workouts from localStorage
-    useEffect(() => {
-        const savedCompleted = localStorage.getItem(
-            "fitlog_completed"
-        );
-
-        if (savedCompleted) {
-            setCompletedIds(JSON.parse(savedCompleted));
-        }
-    }, []);
-
     // Mark workout as done
-  const markAsDone = (id: number, name: string) => {
-    removeFromPlan(id);
+    const markAsDone = (id: number, name: string) => {
+        removeFromPlan(id);
 
-    toast.success(
-        `"${name}" completed successfully! 🎉`
-    );
-};
+        toast.success(
+            `"${name}" completed successfully! 🎉`
+        );
+    };
 
     // Loading
     if (!isLoaded) {
@@ -63,6 +51,7 @@ const MyPlanPage = () => {
         );
     }
 
+    // Metrics
     const totalExercises = plan.length;
 
     const totalMinutes = plan.reduce(
@@ -98,13 +87,14 @@ const MyPlanPage = () => {
         <main className="min-h-screen bg-[#090a0d] px-4 py-10 text-white">
             <div className="mx-auto max-w-7xl">
 
+                {/* Header + Metrics */}
                 <PlanHeader
                     totalExercises={totalExercises}
                     totalMinutes={totalMinutes}
                     totalCalories={totalCalories}
                 />
 
-
+                {/* Tabs + Sort */}
                 <PlanTabs
                     activeTab={activeTab}
                     setActiveTab={setActiveTab}
@@ -114,7 +104,7 @@ const MyPlanPage = () => {
                     setSortBy={setSortBy}
                 />
 
-                
+                {/* Saved */}
                 {activeTab === "saved" && (
                     <div className="mt-6">
 
@@ -153,7 +143,7 @@ const MyPlanPage = () => {
                     </div>
                 )}
 
-
+                {/* Today's Plan */}
                 {activeTab === "today" && (
                     <div className="mt-6">
 
@@ -183,9 +173,6 @@ const MyPlanPage = () => {
                                     <TodayPlanCard
                                         key={workout.id}
                                         workout={workout}
-                                        isDone={completedIds.includes(
-                                            workout.id
-                                        )}
                                         markAsDone={markAsDone}
                                     />
                                 ))}

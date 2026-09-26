@@ -25,7 +25,7 @@ interface Workout {
 
 interface PlanContextType {
     plan: Workout[];
-    isLoaded:boolean;
+    isLoaded: boolean;
     addToPlan: (workout: Workout) => boolean;
     removeFromPlan: (id: number) => void;
     savedWorkouts: Workout[];
@@ -45,12 +45,14 @@ export const PlanProvider = ({
     const [plan, setPlan] = useState<Workout[]>([]);
     const [savedWorkouts, setSavedWorkouts] =
         useState<Workout[]>([]);
-        const [isLoaded,setIsLoaded]=useState(false)
+    const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
-        const savedPlan =localStorage.getItem("fitlog-plan");
+        const savedPlan =
+            localStorage.getItem("fitlog-plan");
 
-        const saved =localStorage.getItem("fitlog-saved");
+        const saved =
+            localStorage.getItem("fitlog-saved");
 
         if (savedPlan) {
             setPlan(JSON.parse(savedPlan));
@@ -59,42 +61,45 @@ export const PlanProvider = ({
         if (saved) {
             setSavedWorkouts(JSON.parse(saved));
         }
-        setIsLoaded(true)
+
+        setIsLoaded(true);
     }, []);
 
     useEffect(() => {
+        if (!isLoaded) return;
+
         localStorage.setItem(
             "fitlog-plan",
             JSON.stringify(plan)
         );
-    }, [plan]);
+    }, [plan, isLoaded]);
 
     useEffect(() => {
+        if (!isLoaded) return;
+
         localStorage.setItem(
             "fitlog-saved",
             JSON.stringify(savedWorkouts)
         );
-    }, [savedWorkouts]);
+    }, [savedWorkouts, isLoaded]);
 
-   const addToPlan = (workout: Workout) => {
-    if (plan.length >= 5) {
-        return false;
-    }
+    const addToPlan = (workout: Workout) => {
+        if (plan.length >= 5) {
+            return false;
+        }
 
-    if (
-        plan.some(
-            (item) => item.id === workout.id
-        )
-    ) {
-        return false;
-    }
+        if (
+            plan.some(
+                (item) => item.id === workout.id
+            )
+        ) {
+            return false;
+        }
 
-    setPlan((prev) => [...prev, workout]);
+        setPlan((prev) => [...prev, workout]);
 
-    return true;
-};
-
-
+        return true;
+    };
 
     const removeFromPlan = (id: number) => {
         setPlan((prev) =>
